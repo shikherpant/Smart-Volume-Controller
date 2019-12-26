@@ -6,7 +6,7 @@ Skills/Technologies Used: Python, OpenCV, Pycharm IDE, MacOS 
 - If any 4 fingers of hand is open, volume is set to 80 %
 - If any 3 fingers of hand is open, volume is set to 60 %
 - If any 2 fingers of hand is open, volume is set to 40 %
-- If any 1 fingers of hand is open, volume is set to 50 %
+- If any 1 fingers of hand is open, volume is set to 20 %
 
 
 # How to use it:
