@@ -1,3 +1,6 @@
+#Created by Shikher Pant
+#https://github.com/shikherpant
+
 import cv2
 import numpy as np
 import math
