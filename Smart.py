@@ -1,5 +1,5 @@
-#Created by Shikher Pant
-#https://github.com/shikherpant
+# Created by Shikher Pant
+# https://github.com/shikherpant
 
 import cv2
 import numpy as np
@@ -33,6 +33,33 @@ def countFingers(cnt):
     return(num)
 
 
+# function for difference between 1 finger and no finger
+def forMute(cnt):
+
+    hull1 = cv2.convexHull(cnt, returnPoints=False)
+    defects = cv2.convexityDefects(cnt, hull1)
+    try:
+        num2=0
+        for i in range(defects.shape[0]):
+            s, e, f, d = defects[i, 0]
+            start = tuple(cnt[s][0])
+            end = tuple(cnt[e][0])
+            far = tuple(cnt[f][0])
+
+            a = math.sqrt((end[0] - start[0]) ** 2 + (end[1] - start[1]) ** 2)
+            b = math.sqrt((far[0] - start[0]) ** 2 + (far[1] - start[1]) ** 2)
+            c = math.sqrt((end[0] - far[0]) ** 2 + (end[1] - far[1]) ** 2)
+
+            angle = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c))
+
+            if angle <= 2*(math.pi) / 3:
+                num2 = num2 + 1
+    except AttributeError:
+        print("Unable to detect hand")
+        num2=False
+    return(num2)
+
+
 # capture video from webcam
 cap = cv2.VideoCapture(0)
 
@@ -64,61 +91,76 @@ while 1:
 
         # to find and draw the boundries of largest contour
         maxarea=0
+        i=0
         for x in range(len(contours)):
             area=cv2.contourArea(contours[x])
             if area>maxarea:
                 maxarea=area
                 i=x
 
-        lar_contour=contours[i]
-        cnt=[]
-        cnt.append(lar_contour)
+        # using try/except to remove index error when the frame is empty
+        try:
+            lar_contour=contours[i]
+            cnt=[]
+            cnt.append(lar_contour)
 
-        # create a new black image
-        img=np.zeros((480,640,3),np.uint8)
-        
-        cv2.drawContours(img, cnt, -1, (0, 255, 0), 2)
-        # cv2.imshow("Contours",img)
+            # create a new black image
+            img=np.zeros((480,640,3),np.uint8)
 
-        # to draw convexhull
-        for m in cnt:
-            hull = cv2.convexHull(m)
-            cv2.drawContours(img, [hull], -1, (0, 0, 255), 2)
-            #cv2.imshow("Contour & ConvexHull", img)
+            cv2.drawContours(img, cnt, -1, (0, 255, 0), 2)
+            # cv2.imshow("Contours",img)
 
-        cnt.clear()
-        
-        # function call to count fingers
-        num=countFingers(lar_contour)
-        if num != False:
-            print(num+1)
+            # to draw convexhull
+            for m in cnt:
+                hull = cv2.convexHull(m)
+                cv2.drawContours(img, [hull], -1, (0, 0, 255), 2)
+                #cv2.imshow("Contour & ConvexHull", img)
 
-        # to change volume in macos
-        if (num+1)>=5:
-            os.system('osascript -e "set Volume 10"')
-            cv2.putText(img, "Volume is set to 100 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            cnt.clear()
 
-        elif (num+1)==4:
-            os.system('osascript -e "set Volume 8"')
-            cv2.putText(img, "Volume is set to 80 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            # function call to count fingers
+            num=countFingers(lar_contour)
+            if num != False:
+                print(num+1)
 
-        elif (num+1)==3:
-            os.system('osascript -e "set Volume 6"')
-            cv2.putText(img, "Volume is set to 60 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            # function call to check for mute
+            if num+1==1:
+                num2=forMute(lar_contour)
+                print("num2 : "+str(num2))
 
-        elif (num+1)==2:
-            os.system('osascript -e "set Volume 4"')
-            cv2.putText(img, "Volume is set to 40 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            # to change volume in macos
+            if (num+1)>=5:
+                os.system('osascript -e "set Volume 10"')
+                cv2.putText(img, "Volume is set to 100 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
-        elif (num+1)==1:
-            os.system('osascript -e "set Volume 2"')
-            cv2.putText(img, "Volume is set to 20 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+            elif (num+1)==4:
+                os.system('osascript -e "set Volume 8"')
+                cv2.putText(img, "Volume is set to 80 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
-        cv2.imshow("Contour & ConvexHull", img)
+            elif (num+1)==3:
+                os.system('osascript -e "set Volume 6"')
+                cv2.putText(img, "Volume is set to 60 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
 
-        # video stops on pressing "q"
-        if cv2.waitKey(1) & 0xFF == ord("q"):
-            break
+            elif (num+1)==2:
+                os.system('osascript -e "set Volume 4"')
+                cv2.putText(img, "Volume is set to 40 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+
+            elif (num+1)==1 and num2!=0:
+                os.system('osascript -e "set Volume 2"')
+                cv2.putText(img, "Volume is set to 20 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+
+            elif (num+1)==1 and num2==0:
+                os.system('osascript -e "set Volume 0"')
+                cv2.putText(img, "Volume is set to 0 %", (10, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2, cv2.LINE_AA)
+
+            cv2.imshow("Contour & ConvexHull", img)
+
+            # video stops on pressing "q"
+            if cv2.waitKey(1) & 0xFF == ord("q"):
+                break
+
+        except IndexError:
+            print("Unable to detect hand")
 
     else:
         break
