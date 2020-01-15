@@ -72,9 +72,12 @@ cap.set(4, 480)
 while 1:
     # ret stores boolean value and frame store the img from video
     ret, frame = cap.read()
+    
     if ret == True:
         # show the frame in window "original"
-        cv2.imshow("Original", frame)
+        # changing the size of frame before display
+        frame2 = cv2.resize(frame, (500, 330))
+        cv2.imshow("Original", frame2)
 
         # convert color from bgr to gray
         grayframe = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -84,7 +87,10 @@ while 1:
 
         # thresholding
         _, th = cv2.threshold(blur, 90, 255, cv2.THRESH_BINARY_INV)
-        cv2.imshow("Thresholding", th)
+        # changing the size of th before display
+        th2 = cv2.resize(th, (500, 330))
+        # displays the thresholded image
+        cv2.imshow("Thresholding", th2)
 
         # to find boundries(edges) in frame
         contours, hiearchy = cv2.findContours(th, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
