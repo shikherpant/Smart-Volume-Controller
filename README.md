@@ -17,6 +17,7 @@ Skills/Technologies Used: Python, OpenCV, Pycharm IDE, MacOS 
 - Copy the code and run in PyCharm or any IDE.
 - Choose a light colour background.
 - Adjust the thresholding values according to the light in the room in line number 89.
+- Working demo : https://youtu.be/at6_Gg69Ib8
 - Enjoy
 
 
